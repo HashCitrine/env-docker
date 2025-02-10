@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  youtrack:
+    image: jetbrains/youtrack:2024.2.41254
+    container_name: youtrack
+    restart: always
+    volumes:
+      - ./data:/opt/youtrack/data
+      - ./conf:/opt/youtrack/conf
+      - ./logs:/opt/youtrack/logs
+      - ./backups:/opt/youtrack/backups
+    ports:
+      - 8082:8080
