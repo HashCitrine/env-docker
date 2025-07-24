@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  jupyterhub:
+    image: jupyterhub/jupyterhub:latest
+    container_name: jupyterhub
+    restart: always
+    command: bash -c "pip install jupyter_server jupyterlab notebook && jupyterhub -f /srv/jupyterhub/jupyterhub_config.py"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jupyterhub:/srv/jupyterhub
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - /etc/group:/etc/group:ro
+      - /mnt/nas:/home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - common-tool
+
+networks:
+  common-tool:
+    driver: bridge
