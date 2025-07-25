@@ -1,0 +1,21 @@
+version: '3'
+services:
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight-bped
+    restart: unless-stopped
+    #environment:
+      #- RI_PROXY_PATH=${REDIS_PATH_PREFIX}
+    ports:
+      - 5540:5540
+    depends_on:
+      - redis
+    networks:
+      - common-tool
+    volumes:
+      - ./redisinsight_data:/db
+
+networks:
+  common-tool:
+    external: true
+    name: common-tool
