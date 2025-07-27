@@ -1,0 +1,34 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+      #ports:
+      #- "2181:2181"
+    networks:
+      - commom-tool
+    
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9992:9992"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://${HOST_IP}:9992
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:9992
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LOG_RETENTION_BYTES: 1073741824      # 1GB
+      KAFKA_LOG_RETENTION_MS: 94608000000        # 3년 (31,536,000,000ms x 3 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - commom-tool
+
+networks:
+  common-tool:
+    external: true
+    name: common-tool
