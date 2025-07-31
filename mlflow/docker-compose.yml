@@ -1,0 +1,55 @@
+version: "3.7"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mlflowuser
+      POSTGRES_PASSWORD: mlflowpassword
+      POSTGRES_DB: mlflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    command: server /data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  mlflow:
+    #image: ghcr.io/mlflow/mlflow:v3.2.0rc0       # MLflow 공식 이미지 사용(예시, 버전 자유롭게)
+    container_name: mlflow_server
+    build: ./server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: minio123
+      BACKEND_STORE_URI: postgresql://mlflowuser:mlflowpassword@postgres:5432/mlflow
+      ARTIFACT_ROOT: s3://mlflow/
+      EXTRA_PIP_INSTALL: "psycopg2-binary"
+    depends_on:
+      - postgres
+      - minio
+    command: >
+      mlflow server --backend-store-uri postgresql://mlflowuser:mlflowpassword@postgres:5432/mlflow
+                   --default-artifact-root s3://mlflow/
+                   --host 0.0.0.0
+
+volumes:
+  postgres_data:
+  minio_data:
