@@ -1,0 +1,18 @@
+version: '3.8'
+
+networks:
+  common-tool:
+    external: false
+
+services:
+  tabby:
+    image: tabbyml/tabby
+    container_name: tabby
+    restart: always
+    command: serve
+    ports:
+      - 8777:8080
+    volumes:
+      - .tabby:/data
+    networks:
+      - common-tool
